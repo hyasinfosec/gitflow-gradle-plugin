@@ -1,0 +1,26 @@
+plugins {
+    id 'groovy'
+    id 'java-gradle-plugin'
+    id 'maven-publish'
+}
+
+group = 'com.hyas'
+version = '0.0.1-SNAPSHOT'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    implementation 'external.atlassian.jgitflow:jgit-flow-core:1.0-m5.1'
+    implementation 'com.github.zafarkhaja:java-semver:0.9.0'
+}
+
+gradlePlugin {
+    plugins {
+        hyasGitflow {
+            id = 'com.hyas.gitflow'
+            implementationClass = 'com.hyas.plugins.gitflow.GitflowPlugin'
+        }
+    }
+}
