@@ -14,7 +14,7 @@ class ReleaseStartTask extends AbstractTask {
     void taskAction() {
         CredentialsHelper.setupProvider(project)
 
-        String releaseVersion = project.properties['releaseVersion']?: loadVersionFromGradleProperties()
+        String releaseVersion = project.properties['releaseVersion'] ?: loadVersionFromGradleProperties()
 
         validateReleaseVersion(releaseVersion)
 
