@@ -2,6 +2,7 @@ plugins {
     id 'groovy'
     id 'java-gradle-plugin'
     id 'maven-publish'
+    id 'com.gradle.plugin-publish' version '0.15.0'
 }
 
 group = 'com.hyas'
@@ -24,3 +25,17 @@ gradlePlugin {
         }
     }
 }
+
+pluginBundle {
+  website = 'https://github.com/hyasinfosec/gitflow-gradle-plugin'
+  vcsUrl = 'https://github.com/hyasinfosec/gitflow-gradle-plugin.git'
+  description = 'Gradle plugin for gitflow operations.'
+  tags = ['gitflow']
+
+  plugins {
+    hyasGitflow {
+      displayName = 'Gradle gitflow plugin'
+    }
+  }
+}
+

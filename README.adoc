@@ -1,0 +1,203 @@
+= Gitflow Gradle Plugin
+:author: Paul van Gool
+:version: 1.0.0
+:hardbreaks:
+
+== Overview
+
+This plugin is based on the JGitflow Gradle Plugin by Robert Winkler.
+
+This is a Gradle Plugin which adds tasks to Gradle to support the https://de.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow/[Gitflow Workflow]. The Gitflow Workflow provides a robust framework for managing larger projects. The Plugin uses `org.eclipse.jgit` and `external.atlassian.jgitflow:jgit-flow-core` to implement the Gitflow Workflow. The project is inspired by the http://jgitflow.bitbucket.org/[JGitFlow Maven Plugin].
+The Plugin adds the task group `jgitflow` which contains the following tasks:
+
+* `initGitflow`: Initializes the JGitflow context. Creates a develop branch and switches to develop branch.
+* `releaseStart`: Creates a release branch `release/<releaseVersion>` from a develop branch and updates the `gradle.properties` file with a release version. Switches to release branch.
+* `releaseFinish`: Merges a release branch back into the master branch and develop branch. Tags the release. Removes the release branch. Pushes everything to the remote origin. Switches back to develop branch.
+* `featureStart`: Creates a feature branch `feature/<featureName>` from a develop branch. Switches to feature branch.
+* `featureFinish`: Merges a feature branch back into the develop branch. Removes the feature branch. Switches back to develop branch.
+* `hotfixStart`: Creates a hotfix branch `hotfix/<hotfixName>` from a master branch. Switches to hotfix branch.
+* `hotfixFinish`: Merges a hotfix branch back into the master branch and develop branch. Additionally the master merge is tagged with the hotfix version. Switches back to develop branch.
+
+The project requires at least JDK 7.
+
+== Usage Guide
+
+Add the following snippet to your Gradle build file:
+
+[source,groovy]
+[subs="attributes"]
+----
+plugins {
+    id 'com.hyas.gitflow' version '{version}'
+}
+----
+
+=== JGitflow context configuration
+
+The default `jgitflow` context configuration looks as follows:
+
+.Branch names
+[options="header"]
+|===
+|Logical branch name | Real branch name
+|master | "master"
+|develop | "develop"
+|feature | "feature/<featureName>"
+|release | "release/<releaseVersion>"
+|hotfix | "hotfix/<hotfixName>";
+|===
+
+By default a release tag has no version prefix.
+
+=== Initializes the JGitflow context
+
+Before you can use the tasks, you must initialize the JGitflow context.
+
+`gradlew initGitflow`
+
+If you want to change the JGitflow context configuration, you can do the following.
+
+[source,groovy]
+----
+initGitflow{
+    feature = "features/"
+    release = "releases/"
+    versiontag = 'v'
+}
+----
+
+=== Git authentication
+
+If you want to push changes to a remote origin, you must specify your username and password in a `~/.gradle/gradle.properties` file or as a command line parameter.
+
+==== Example
+
+----
+gpr.user=<username>
+gpr.key=<password>
+----
+
+or 
+
+`-Pgpr.user=<username> -Pgpr.key=<password>`
+
+=== Release Start Task
+
+The task exposes a few properties as part of its configuration.
+
+.Properties of releaseStart
+[options="header"]
+|===
+|Mandatory |Property | Description | Type | Default
+|No |releaseVersion | The version of the release. If not set, version will be taken from gradle.properties ('version' property with stripped SNAPSHOT postfix) |  String | empty
+|No |allowSnapshotDependencies| Allow snapshot library dependencies | Boolean| false
+|No |baseCommit| You can optionally supply a base commit sha-1 hash to start the release from. The commit must be on the develop branch. | String| empty
+|No |scmMessagePrefix| You can optionally supply a SCM Prefix. | String| empty
+|No |scmMessageSuffix| You can optionally supply a SCM Suffix. | String| empty
+|===
+
+==== Example
+
+The tasks should be invoked via a command line.
+
+`gradlew releaseStart`
+`gradlew releaseStart -PreleaseVersion=1.0.0`
+
+=== Release Finish Task
+
+.Properties of releaseFinish
+[options="header"]
+|===
+|Mandatory |Property | Description | Type | Default
+|No |releaseVersion | The version of the release. If not set, version will be taken from gradle.properties ('version' property with stripped SNAPSHOT postfix) |  String | empty
+|No |newVersion | The new version of the develop branch. If not set then releaseVersion with incremented version and SNAPSHOT postfix (http://semver.org/) |  String | empty
+|No |newVersionIncrement | Controls which part of the version gets incremented when newVersion is set.  Can be one of PATCH, MINOR or MAJOR.   |  String | PATCH
+|No |pushRelease | A flag indicating whether or not the finished release should be pushed to remote |  boolean | true
+|No |scmMessagePrefix| You can optionally supply a SCM Prefix. | String| empty
+|No |scmMessageSuffix| You can optionally supply a SCM Suffix. | String| empty
+|===
+
+==== Example
+
+The tasks should be invoked via a command line.
+
+`gradlew releaseFinish`
+`gradlew releaseFinish -PnewVersionIncrement=PATCH`
+`gradlew releaseFinish -PreleaseVersion=1.0.0`
+`gradlew releaseFinish -PreleaseVersion=1.0.0 -PnewVersion=1.0.1-SNAPSHOT`
+`gradlew releaseFinish -PreleaseVersion=1.0.0 -PnewVersion=1.0.1-SNAPSHOT -PpushRelease=true`
+`gradlew releaseFinish -PreleaseVersion=1.0.0 -PnewVersion=1.0.1-SNAPSHOT -PpushRelease=false`
+
+=== Feature Start Task
+
+The task exposes a few properties as part of its configuration.
+
+.Properties of featureStart
+[options="header"]
+|===
+|Mandatory |Property | Description | Type | Default
+|Yes |featureName | The name of the feature |  String | empty
+|No |scmMessagePrefix| You can optionally supply a SCM Prefix. | String| empty
+|No |scmMessageSuffix| You can optionally supply a SCM Suffix. | String| empty
+|===
+
+==== Example
+
+The tasks should be invoked via a command line.
+
+`gradlew featureStart -PfeatureName="NewFeature"`
+
+=== Feature Finish Task
+
+.Properties of featureFinish
+[options="header"]
+|===
+|Mandatory |Property | Description | Type | Default
+|Yes |featureName | The name of the feature |  String | empty
+|No |scmMessagePrefix| You can optionally supply a SCM Prefix. | String| empty
+|No |scmMessageSuffix| You can optionally supply a SCM Suffix. | String| empty
+|===
+
+==== Example
+
+The tasks should be invoked via a command line.
+
+`gradlew featureFinish -PfeatureName="NewFeature"`
+
+=== Hotfix Start Task
+
+The task exposes a few properties as part of its configuration.
+
+.Properties of hotfixStart
+[options="header"]
+|===
+|Mandatory |Property | Description | Type | Default
+|Yes |hotfixName | The name of the hotfix |  String | empty
+|No |baseCommit| You can optionally supply a base commit sha-1 hash to start the hotfix from. The commit must be on the master branch. | String| empty
+|No |scmMessagePrefix| You can optionally supply a SCM Prefix. | String| empty
+|No |scmMessageSuffix| You can optionally supply a SCM Suffix. | String| empty
+|===
+
+==== Example
+
+The tasks should be invoked via a command line.
+
+`gradlew hotfixStart -PhotfixName="HotfixXYZ"`
+
+=== Hotfix Finish Task
+
+.Properties of hotfixFinish
+[options="header"]
+|===
+|Mandatory |Property | Description | Type | Default
+|Yes |hotfixName | The name of the hotfix |  String | empty
+|No |scmMessagePrefix| You can optionally supply a SCM Prefix. | String| empty
+|No |scmMessageSuffix| You can optionally supply a SCM Suffix. | String| empty
+|===
+
+==== Example
+
+The tasks should be invoked via a command line.
+
+`gradlew hotfixFinish -PhotfixName="HotfixXYZ"`
+
