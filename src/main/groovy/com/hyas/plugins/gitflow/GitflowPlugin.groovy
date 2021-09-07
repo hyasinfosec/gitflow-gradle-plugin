@@ -6,7 +6,7 @@ import org.gradle.api.Project
 
 class GitflowPlugin implements Plugin<Project> {
 
-    static final String GROUP_NAME = 'HYAS gitflow'
+    static final String GROUP_NAME = 'com.hyas.gitflow'
 
     @Override
     void apply(Project project) {

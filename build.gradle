@@ -28,13 +28,13 @@ gradlePlugin {
 
 pluginBundle {
   website = 'https://github.com/hyasinfosec/gitflow-gradle-plugin'
-  vcsUrl = 'https://github.com/hyasinfosec/gitflow-gradle-plugin.git'
+  vcsUrl = 'https://github.com/hyasinfosec/gitflow-gradle-plugin'
   description = 'Gradle plugin for gitflow operations.'
   tags = ['gitflow']
 
   plugins {
     hyasGitflow {
-      displayName = 'Gradle gitflow plugin'
+      displayName = 'HYAS gradle gitflow plugin'
     }
   }
 }
